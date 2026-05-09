@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return out.join(' ');
     }
 
-    function renderDreams() {
+    const renderDreams = function() {
         if (!dreamsList) return;
         dreamsList.innerHTML = "";
         if (dreamCount) dreamCount.textContent = dreams.length;
@@ -437,10 +437,13 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             const dbPayload = {
-                date, title, description, vividness, length, rating, 
+                date, title, description, 
+                vividness: vividness ? parseFloat(vividness) : 5, 
+                length: length ? parseFloat(length) : 3, 
+                rating: rating ? parseFloat(rating) : 3, 
                 is_lucid: isLucid, has_control: hasControl, 
-                garmin_score: garminScore || null, 
-                bevel_score: bevelScore || null, 
+                garmin_score: garminScore ? parseInt(garminScore, 10) : null, 
+                bevel_score: bevelScore ? parseInt(bevelScore, 10) : null, 
                 total_sleep: totalSleep || null, 
                 rem_sleep: remSleep || null,
                 ...tagsToSave
@@ -474,7 +477,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function updateAnalytics() {
+    const updateAnalytics = function() {
         const viewE = document.getElementById("view-analytics");
         if (!viewE || viewE.classList.contains("hidden")) return;
 
