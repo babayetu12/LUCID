@@ -39,3 +39,30 @@ async function deleteAllDreamsFromDB() {
     const { error } = await supabaseClient.from('dreams').delete().neq('id', '00000000-0000-0000-0000-000000000000');
     if (error) console.error("Error deleting all dreams:", error);
 }
+
+
+// --- AUTHENTICATION ---
+
+async function sendMagicLink(email) {
+    const { error } = await supabaseClient.auth.signInWithOtp({ 
+        email, 
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
+    });
+    if (error) throw error;
+}
+
+async function signOutUser() {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) console.error("Error logging out", error);
+}
+
+async function getCurrentSession() {
+    const { data: { session }, error } = await supabaseClient.auth.getSession();
+    return session;
+}
+
+function onAuthStateChange(callback) {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+        callback(event, session);
+    });
+}

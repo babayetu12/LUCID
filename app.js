@@ -674,7 +674,68 @@ document.addEventListener("DOMContentLoaded", () => {
     setToggleUI("control", "no");
 
 
+
+    // --- AUTHENTICATION LOGIC ---
+    const loginContainer = document.getElementById("login-container");
+    const mainApp = document.getElementById("main-app");
+    const authEmail = document.getElementById("auth-email");
+    const authBtn = document.getElementById("auth-btn");
+    const authMsg = document.getElementById("auth-msg");
+    const authError = document.getElementById("auth-error");
+    const logoutBtn = document.getElementById("logout-btn");
+
+    if (authBtn) {
+        authBtn.addEventListener("click", async () => {
+            try {
+                authMsg.classList.add("hidden");
+                authError.classList.add("hidden");
+                authBtn.textContent = "Sending...";
+                authBtn.disabled = true;
+                
+                await sendMagicLink(authEmail.value);
+                
+                authMsg.classList.remove("hidden");
+            } catch (err) {
+                authError.textContent = err.message || "Failed to send link.";
+                authError.classList.remove("hidden");
+            } finally {
+                authBtn.textContent = "Send Magic Link";
+                authBtn.disabled = false;
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            await signOutUser();
+            window.location.reload();
+        });
+    }
+
+    onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+            document.body.classList.add("logged-in");
+            // If we just signed in from a magic link click, reload completely to mount the app securely
+            if (event === 'SIGNED_IN') window.location.reload();
+        } else if (event === 'SIGNED_OUT') {
+            window.location.reload();
+        }
+    });
+
     async function initApp() {
+        const session = await getCurrentSession();
+        
+        if (!session) {
+            // Show Login
+            loginContainer.classList.remove("hidden");
+            mainApp.classList.add("hidden");
+            return;
+        } else {
+            // Show App
+            loginContainer.classList.add("hidden");
+            mainApp.classList.remove("hidden");
+        }
+
         // Load dreams from Supabase
         dreams = await fetchDreamsFromDB();
         
