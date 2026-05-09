@@ -667,10 +667,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     categories.forEach(cat => renderCategoryUI(cat));
-    renderDreams();
     setToggleUI("lucid", "no");
     setToggleUI("control", "no");
-});
 
 
     async function initApp() {
@@ -694,3 +692,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Replace the synchronous initialization
     initApp();
+});
+
+
