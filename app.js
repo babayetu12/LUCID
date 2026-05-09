@@ -316,16 +316,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return String(str).replace(/[&<>'"]/g, tag => ({"&": "&amp;","<": "&lt;",">": "&gt;","'": "&#39;",'"': "&quot;"}[tag] || tag));
     }
 
-    window.deleteDream = (id) => {
-        if (confirm("Are you sure you want to delete this dream?")) {
-            dreams = dreams.filter(d => d.id !== String(id));
-            saveDreams();
+    window.deleteDream = async function(id) {
+        if(confirm("Are you sure you want to delete this dream?")) {
+            await deleteDreamFromDB(id);
+            dreams = dreams.filter(d => d.id !== String(id) && d.id !== id);
             renderDreams();
+            updateAnalytics();
             categories.forEach(cat => renderCategoryUI(cat));
             if (editingIdInput && editingIdInput.value === String(id)) resetForm();
-            updateAnalytics();
         }
-    };
+    };;
 
     window.editDream = (id) => {
         const dream = dreams.find(d => d.id === String(id));
