@@ -715,10 +715,11 @@ document.addEventListener("DOMContentLoaded", () => {
     onAuthStateChange((event, session) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
             document.body.classList.add("logged-in");
-            // If we just signed in from a magic link click, reload completely to mount the app securely
-            if (event === 'SIGNED_IN') window.location.reload();
+            // Instead of reloading, dynamically mount the app now that a session exists
+            if (event === 'SIGNED_IN') initApp();
         } else if (event === 'SIGNED_OUT') {
-            window.location.reload();
+            loginContainer.classList.remove("hidden");
+            mainApp.classList.add("hidden");
         }
     });
 
