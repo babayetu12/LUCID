@@ -402,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (form) {
-        form.addEventListener("submit", (e) => {
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
             
             const date = dateInput.value;
@@ -436,22 +436,38 @@ document.addEventListener("DOMContentLoaded", () => {
                 tagsToSave[cat] = [...currentTags[cat]];
             });
 
+            const dbPayload = {
+                date, title, description, vividness, length, rating, 
+                is_lucid: isLucid, has_control: hasControl, 
+                garmin_score: garminScore || null, 
+                bevel_score: bevelScore || null, 
+                total_sleep: totalSleep || null, 
+                rem_sleep: remSleep || null,
+                ...tagsToSave
+            };
+
             if (editingId) {
+                await updateDreamInDB(editingId, dbPayload);
                 const index = dreams.findIndex(d => d.id === editingId);
                 if (index !== -1) {
-                    dreams[index] = { ...dreams[index], date, title, description, vividness, length, rating, isLucid, hasControl, garminScore, bevelScore, totalSleep, remSleep, ...tagsToSave };
+                    dreams[index] = { id: editingId, ...dbPayload, isLucid, hasControl, garminScore, bevelScore, totalSleep, remSleep, ...tagsToSave };
                 }
             } else {
-                const newDream = {
-                    id: Date.now().toString(),
-                    date, title, description, vividness, length, rating, isLucid, hasControl, garminScore, bevelScore, totalSleep, remSleep,
-                    ...tagsToSave,
-                    createdAt: new Date().toISOString()
-                };
-                dreams.push(newDream);
+                const newRows = await saveDreamToDB(dbPayload);
+                if (newRows && newRows.length > 0) {
+                    const row = newRows[0];
+                    dreams.unshift({
+                        ...row,
+                        isLucid: row.is_lucid,
+                        hasControl: row.has_control,
+                        garminScore: row.garmin_score,
+                        bevelScore: row.bevel_score,
+                        totalSleep: row.total_sleep,
+                        remSleep: row.rem_sleep
+                    });
+                }
             }
 
-            saveDreams();
             resetForm();
             renderDreams();
             updateAnalytics();
@@ -655,3 +671,26 @@ document.addEventListener("DOMContentLoaded", () => {
     setToggleUI("lucid", "no");
     setToggleUI("control", "no");
 });
+
+
+    async function initApp() {
+        // Load dreams from Supabase
+        dreams = await fetchDreamsFromDB();
+        
+        // Map Supabase column names back to our camelCase app structures if necessary
+        dreams = dreams.map(d => ({
+            ...d,
+            isLucid: d.is_lucid,
+            hasControl: d.has_control,
+            garminScore: d.garmin_score,
+            bevelScore: d.bevel_score,
+            totalSleep: d.total_sleep,
+            remSleep: d.rem_sleep
+        }));
+
+        renderDreams();
+        updateAnalytics();
+    }
+
+    // Replace the synchronous initialization
+    initApp();

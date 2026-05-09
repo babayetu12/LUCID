@@ -1,30 +1,41 @@
-// -------------------------------------------------------------
 // SUPABASE CLIENT SETUP
-// This file is ready to wire up your local app to the cloud.
-// -------------------------------------------------------------
+const supabaseUrl = 'https://ujkieulvanbzfazarxno.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVqa2lldWx2YW5iemZhemFyeG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMzM5MTQsImV4cCI6MjA5MzkwOTkxNH0.31mOFktdKSY2VHRKhq7jySbxJcON9HNrA38474aiYOM';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// Uncomment and replace with your actual Supabase URL and Anon Key
-// const supabaseUrl = 'YOUR_SUPABASE_URL';
-// const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
-// const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-/* 
-// Example structure to replace LocalStorage with Supabase later:
-
-export async function fetchDreamsFromDB() {
-    const { data, error } = await supabase.from('dreams').select('*').order('date', { ascending: false });
-    if (error) console.error("Error fetching dreams:", error);
-    return data || [];
-}
-
-export async function saveDreamToDB(dreamInput) {
-    const { data, error } = await supabase.from('dreams').insert([dreamInput]);
-    if (error) console.error("Error saving dream:", error);
+async function fetchDreamsFromDB() {
+    const { data, error } = await supabaseClient.from('dreams').select('*').order('date', { ascending: false });
+    if (error) {
+        console.error("Error fetching dreams:", error);
+        return [];
+    }
     return data;
 }
 
-export async function deleteDreamFromDB(id) {
-    const { error } = await supabase.from('dreams').delete().eq('id', id);
+async function saveDreamToDB(dreamInput) {
+    const { data, error } = await supabaseClient.from('dreams').insert([dreamInput]).select();
+    if (error) {
+         console.error("Error saving dream:", error);
+         return null;
+    }
+    return data;
+}
+
+async function updateDreamInDB(id, dreamInput) {
+    const { data, error } = await supabaseClient.from('dreams').update(dreamInput).eq('id', id).select();
+    if (error) {
+        console.error("Error updating dream:", error);
+        return null;
+    }
+    return data;
+}
+
+async function deleteDreamFromDB(id) {
+    const { error } = await supabaseClient.from('dreams').delete().eq('id', id);
     if (error) console.error("Error deleting dream:", error);
 }
-*/
+
+async function deleteAllDreamsFromDB() {
+    const { error } = await supabaseClient.from('dreams').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (error) console.error("Error deleting all dreams:", error);
+}
