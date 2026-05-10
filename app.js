@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentTags = { people: [], objects: [], places: [], themes: [], actions: [], emotions: [] };
     
     // Load dreams
-    let dreams = JSON.parse(localStorage.getItem("lucid_dreams")) || [];
+    let dreams = [];
 
     function getKnownTags(category) {
         const set = new Set();
@@ -394,7 +394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function saveDreams() {
-        localStorage.setItem("lucid_dreams", JSON.stringify(dreams));
+
     }
 
     if (cancelBtn) {
@@ -753,6 +753,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         renderDreams();
         updateAnalytics();
+        categories.forEach(cat => renderCategoryUI(cat));
     }
 
     // Replace the synchronous initialization
