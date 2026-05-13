@@ -50,14 +50,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (clearAllDataBtn) {
-        clearAllDataBtn.addEventListener("click", () => {
-            if(confirm("Wipe all data? This cannot be undone.")) {
+        clearAllDataBtn.addEventListener("click", async () => {
+            if (confirm("Are you SURE you want to delete all dreams? This cannot be undone!")) {
+                await deleteAllDreamsFromDB();
                 dreams = [];
-                saveDreams();
                 renderDreams();
                 updateAnalytics();
-                resetForm();
+                categories.forEach(cat => renderCategoryUI(cat));
+                alert("All data wiped successfully from the cloud.");
             }
+        });
+    }
+
+    const exportDataBtn = document.getElementById("export-data-btn");
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener("click", () => {
+            if (dreams.length === 0) {
+                alert("No data to export!");
+                return;
+            }
+            const dataStr = JSON.stringify(dreams, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `lucid_dreams_export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         });
     }
 
