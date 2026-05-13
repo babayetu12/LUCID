@@ -62,26 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const exportDataBtn = document.getElementById("export-data-btn");
-    if (exportDataBtn) {
-        exportDataBtn.addEventListener("click", () => {
-            if (dreams.length === 0) {
-                alert("No data to export!");
-                return;
-            }
-            const dataStr = JSON.stringify(dreams, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `lucid_dreams_export_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-    }
-
     if (mockDataBtn) {
         mockDataBtn.addEventListener("click", () => {
             const mockDreams = [
@@ -743,6 +723,23 @@ document.addEventListener("DOMContentLoaded", () => {
             mainApp.classList.add("hidden");
         }
     });
+
+    window.exportAllData = function() {
+    if (dreams.length === 0) {
+        alert("No data to export!");
+        return;
+    }
+    const dataStr = JSON.stringify(dreams, null, 2);
+    const blob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `lucid_dreams_export_${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+};
 
     async function initApp() {
         const session = await getCurrentSession();
